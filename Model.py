@@ -1,0 +1,88 @@
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import (
+    classification_report,
+    confusion_matrix,
+    accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
+    plot_confusion_matrix,
+)
+from typing import List
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+class Model:
+    @staticmethod
+    def fit_and_predict(
+        X_train: pd.DataFrame,
+        X_test: pd.DataFrame,
+        y_train: pd.DataFrame,
+        y_test: pd.DataFrame,
+        list_model: List = None,
+    ) -> List:
+        if list_model is None:
+            list_model = [
+                (
+                    "MLP",
+                    MLPClassifier(
+                        **{
+                            "alpha": 0.0001,
+                            "hidden_layer_sizes": (5, 2),
+                            "solver": "sgd",
+                        }
+                    ),
+                ),
+            ]
+        models_base_predict = []
+        for result in list_model:
+            name, model = result
+            model.fit(X_train, y_train)
+            predict = model.predict(X_test)
+            accuracy = round(accuracy_score(y_test, predict), 4)
+            f1 = round(f1_score(y_test, predict, average="macro"), 4)
+            precision = round(precision_score(y_test, predict, average="macro"), 4)
+            recall = round(recall_score(y_test, predict, average="macro"), 4)
+            models_base_predict.append(
+                {
+                    "name": name,
+                    "model": model,
+                    "predict": predict,
+                    "accuracy": accuracy,
+                    "f1": f1,
+                    "precision": precision,
+                    "recall": recall,
+                }
+            )
+
+        return models_base_predict
+
+    @staticmethod
+    def plot_results(list_predict, X_test, y_test, export_files=True):
+        for result in list_predict:
+            print(f"Model: {result['name']}")
+            metrics = {
+                "Accuracy": [result["accuracy"]],
+                "F1": [result["f1"]],
+                "Precision": [result["precision"]],
+                "Recall": [result["recall"]],
+            }
+
+            metrics_df = pd.DataFrame.from_dict(
+                metrics, orient="index", columns=["Valor"],
+            )
+            print(metrics_df)
+            print()
+            print(confusion_matrix(y_test, result["predict"]))
+            print()
+            report = classification_report(y_test, result["predict"], output_dict=True)
+            report_df = pd.DataFrame(report).transpose()
+            print(report_df)
+            plot_confusion_matrix(result["model"], X_test, y_test)
+            print()
+            if export_files:
+                plt.savefig(f"outputs/img/matrix_{result['name'].lower()}.png")
+            plt.show()
+            print("--------------------------------------------")
