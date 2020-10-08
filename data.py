@@ -1,18 +1,6 @@
 import pandas as pd
 
 
-class CancerMama:
-    @staticmethod
-    def get_data():
-        return pd.read_csv("data_source/Material 02 - 2 - Cancer de Mama - Dados.csv")
-
-    @staticmethod
-    def get_new_data():
-        return pd.read_csv(
-            "data_source/Material 02 - 2 - Cancer de Mama - Dados - Novos Casos.csv"
-        )
-
-
 class EstimativaVolume:
     @staticmethod
     def get_data():

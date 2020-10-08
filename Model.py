@@ -1,4 +1,5 @@
 from sklearn.model_selection import train_test_split
+
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import (
     classification_report,
@@ -23,19 +24,6 @@ class Model:
         y_test: pd.DataFrame,
         list_model: List = None,
     ) -> List:
-        if list_model is None:
-            list_model = [
-                (
-                    "MLP",
-                    MLPClassifier(
-                        **{
-                            "alpha": 0.0001,
-                            "hidden_layer_sizes": (5, 2),
-                            "solver": "sgd",
-                        }
-                    ),
-                ),
-            ]
         models_base_predict = []
         for result in list_model:
             name, model = result
@@ -75,11 +63,19 @@ class Model:
             )
             print(metrics_df)
             print()
-            print(confusion_matrix(y_test, result["predict"]))
+            if result["name"] == "MLP":
+                print(f"Alpha: {result['model'].alpha}")
+                print(f"Hidden Layers Sizes: {result['model'].hidden_layer_sizes}")
+            elif result["name"] == "SVM":
+                print(f"C: {result['model'].C}")
+                # Sigma e gamma são a mesma coisa, but
+                # if gamma='scale' (default) is passed then it uses 1 / (n_features * X.var()) as value of gamma,
+                # https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html#sklearn.svm.SVC
+                print(f"Sigma: {result['model'].gamma}")
+
             print()
             report = classification_report(y_test, result["predict"], output_dict=True)
             report_df = pd.DataFrame(report).transpose()
-            print(report_df)
             plot_confusion_matrix(result["model"], X_test, y_test)
             print()
             if export_files:
