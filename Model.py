@@ -69,7 +69,8 @@ class Model:
             elif result["name"] == "SVM":
                 print(f"C: {result['model'].C}")
                 # Sigma e gamma são a mesma coisa, but
-                # if gamma='scale' (default) is passed then it uses 1 / (n_features * X.var()) as value of gamma,
+                # if gamma='scale' (default) is passed then it uses
+                # 1 / (n_features * X.var()) as value of gamma,
                 # https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html#sklearn.svm.SVC
                 print(f"Sigma: {result['model'].gamma}")
 
