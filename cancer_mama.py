@@ -1,6 +1,10 @@
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import train_test_split, cross_val_score, cross_val_predict
 from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import plot_confusion_matrix, confusion_matrix
+from sklearn.exceptions import ConvergenceWarning
+
+ConvergenceWarning("ignore")
+
 from sklearn.svm import SVC
 
 import pandas as pd
@@ -19,6 +23,12 @@ class CancerMama:
         self.model = Model()
         self.df = self.get_data()
         self.df_novo = self.get_new_data()
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+            self.df.iloc[:, 1:-1],  # 1 coluna = ID
+            self.df.iloc[:, -1],  # Remove target
+            test_size=0.2,
+            random_state=RANDOM_NUM,
+        )
 
     @staticmethod
     def get_data():
@@ -34,29 +44,37 @@ class CancerMama:
     def get_models():
         return [("SVM", SVC(),), ("MLP", MLPClassifier(),)]
 
-    def run_hold_out(self):
-        X_train, X_test, y_train, y_test = train_test_split(
-            self.df.iloc[:, 1:-1],  # 1 coluna = ID
-            self.df.iloc[:, -1],  # Remove target
-            test_size=0.2,
-            random_state=RANDOM_NUM,
-        )
+    def run_hold_out(self, verbose=True):
         result = self.model.fit_and_predict(
-            X_train, X_test, y_train, y_test, self.get_models()
+            self.X_train, self.X_test, self.y_train, self.y_test, self.get_models()
         )
 
-        self.model.plot_results(result, X_test, y_test)
+        if verbose:
+            self.model.plot_results(result, self.X_test, self.y_test)
 
         return result
 
-    def cross_val(self):
+    def cross_val(self, verbose=True):
+        cross_val_results = []
         for model in self.get_models():
-            scores = cross_val_score(
-                model[1], self.df.iloc[:, 1:-1], self.df.iloc[:, -1], cv=10, n_jobs=-1
+            score = cross_val_score(
+                model[1], self.X_train, self.y_train, cv=10, n_jobs=-1, verbose=False
             )
-        print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
-        return scores
+            predict = cross_val_predict(
+                model[1], self.X_train, self.y_train, cv=10, n_jobs=-1, verbose=False
+            )
+
+            cross_val_results.append((model[0], score, predict))
+
+            if verbose:
+                print(f"Model: {model[0]}")
+                print("Accuracy: %0.2f (+/- %0.2f)" % (score.mean(), score.std() * 2))
+                print(confusion_matrix(self.y_train, predict))
+
+        return cross_val_results
 
 
 if __name__ == "__main__":
+    CancerMama().run_hold_out()
     CancerMama().cross_val()
+
