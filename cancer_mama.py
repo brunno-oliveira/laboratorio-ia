@@ -42,7 +42,7 @@ class CancerMama:
 
     @staticmethod
     def get_models():
-        return [("SVM", SVC(),), ("MLP", MLPClassifier(),)]
+        return [("SVM", SVC(random_state=RANDOM_NUM),), ("MLP", MLPClassifier(random_state=RANDOM_NUM),)]
 
     def run_hold_out(self, verbose=True):
         result = self.model.fit_and_predict(
@@ -77,4 +77,3 @@ class CancerMama:
 if __name__ == "__main__":
     CancerMama().run_hold_out()
     CancerMama().cross_val()
-
