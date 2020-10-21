@@ -1,4 +1,4 @@
-### Pacotes necess·rios:
+### Pacotes necess√°rios:
 library("caret")
 
 ### Leitura dos dados
@@ -17,13 +17,13 @@ set.seed(1912)
 rna <- train(Species~., data=treino, method="nnet",trace=FALSE)
 rna
 
-### PrediÁıes dos valores do conjunto de teste
+### Predi√ß√µes dos valores do conjunto de teste
 predicoes.rna <- predict(rna, teste)
 
-### Matriz de confus„o
+### Matriz de confus√£o
 confusionMatrix(predicoes.rna, teste$Species)
 
-### indica o mÈtodo cv e numero de folders 10
+### indica o m√©todo cv e numero de folders 10
 ctrl <- trainControl(method = "cv", number = 10)
 
 ### executa a RNA com esse ctrl

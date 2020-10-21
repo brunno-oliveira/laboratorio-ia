@@ -22,7 +22,7 @@ class Model:
         X_test: pd.DataFrame,
         y_train: pd.DataFrame,
         y_test: pd.DataFrame,
-        list_model: List = None,
+        list_model: List = None
     ) -> List:
         models_base_predict = []
         for result in list_model:
