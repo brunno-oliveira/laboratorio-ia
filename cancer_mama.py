@@ -76,5 +76,4 @@ class CancerMama:
 
 if __name__ == "__main__":
     CancerMama().run_hold_out()
-    # CancerMama().cross_val()
-
+    CancerMama().cross_val()
