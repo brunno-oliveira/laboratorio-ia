@@ -1,15 +1,15 @@
-from sklearn.model_selection import train_test_split, cross_val_score, cross_val_predict
-from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import plot_confusion_matrix, confusion_matrix
 from sklearn.exceptions import ConvergenceWarning
+from sklearn.metrics import confusion_matrix, plot_confusion_matrix
+from sklearn.model_selection import cross_val_predict, cross_val_score, train_test_split
+from sklearn.neural_network import MLPClassifier
 
 ConvergenceWarning("ignore")
 
-from sklearn.svm import SVC
-
-import pandas as pd
-import numpy as np
 import random
+
+import numpy as np
+import pandas as pd
+from sklearn.svm import SVC
 
 from model import Model
 
@@ -42,7 +42,10 @@ class CancerMama:
 
     @staticmethod
     def get_models():
-        return [("SVM", SVC(random_state=RANDOM_NUM),), ("MLP", MLPClassifier(random_state=RANDOM_NUM),)]
+        return [
+            ("SVM", SVC(random_state=RANDOM_NUM),),
+            ("MLP", MLPClassifier(random_state=RANDOM_NUM),),
+        ]
 
     def run_hold_out(self, verbose=True):
         result = self.model.fit_and_predict(

@@ -1,18 +1,18 @@
-from sklearn.model_selection import train_test_split
+from typing import List
 
-from sklearn.neural_network import MLPClassifier
+import matplotlib.pyplot as plt
+import pandas as pd
 from sklearn.metrics import (
+    accuracy_score,
     classification_report,
     confusion_matrix,
-    accuracy_score,
     f1_score,
+    plot_confusion_matrix,
     precision_score,
     recall_score,
-    plot_confusion_matrix,
 )
-from typing import List
-import pandas as pd
-import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
 
 
 class Model:
@@ -22,7 +22,7 @@ class Model:
         X_test: pd.DataFrame,
         y_train: pd.DataFrame,
         y_test: pd.DataFrame,
-        list_model: List = None
+        list_model: List = None,
     ) -> List:
         models_base_predict = []
         for result in list_model:
