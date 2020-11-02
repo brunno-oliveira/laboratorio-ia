@@ -4,7 +4,7 @@ library("mice")
 library("mlbench")
 
 dados = read.csv("/Users/patrick/Studies/iaa_006_007/laboratorio-ia/data_source/Material 02 - 7 – C - IR - Dados.csv")
-View(dados)
+# View(dados)
 
 ### Convertendo strings para factor
 str(dados)
@@ -20,6 +20,7 @@ treino <- dados[indices,]
 teste <- dados[-indices,]
 
 ### Treinamento do modelo com o conjunto de treino
+set.seed(47)
 rna <- train(sonegador~., data=treino, method="nnet",trace=FALSE)
 rna
 
@@ -29,6 +30,7 @@ confusionMatrix(predicoes.rna, teste$sonegador)
 
 ### indica o m?todo cv e numero de folders 10
 ctrl <- trainControl(method = "cv", number = 10)
+set.seed(47)
 rna <- train(sonegador~., data=treino, method="nnet",trace=FALSE, trControl=ctrl)
 rna
 
@@ -38,7 +40,7 @@ confusionMatrix(predict.rna, teste$sonegador)
 
 
 ### Busca pelo melhor modelo
-grid <- expand.grid(size=seq(from=1, to=45, by=10), decay=seq(from=0.1, to=0.9, by=0.3))
+grid <- expand.grid(size=seq(from=1, to=50, by=5), decay=seq(from=0.1, to=0.9, by=0.3))
 set.seed(47)
 rna <- train(sonegador~., data=treino, method="nnet", tuneGrid=grid, trControl=ctrl, maxit=2000, trace=FALSE)
 rna
@@ -46,3 +48,74 @@ rna
 # Predict
 predict.rna <- predict(rna, teste) 
 confusionMatrix(predict.rna, teste$sonegador)
+
+
+
+######## SVM ##########
+set.seed(47)
+svm <- train(sonegador~., data=treino, method="svmRadial")
+svm
+
+# Predição SVM
+predicoes.svm <- predict(svm, teste)
+confusionMatrix(predicoes.svm, teste$sonegador)
+
+# Cross-validation SVM
+ctrl <- trainControl(method = "cv", number = 10)
+set.seed(47)
+svm <- train(sonegador~., data=treino, method="svmRadial", trControl=ctrl)
+svm
+
+# Predição SVM com Cross-Validation
+predicoes.svm <- predict(svm, teste)
+confusionMatrix(predicoes.svm, teste$sonegador)
+
+# Melhor modelo
+tuneGrid = expand.grid(C=c(1,2,10,50,100), sigma=c(0.1, 0.15, 0.2))
+set.seed(47)
+svm <- train(sonegador~., data=treino, method="svmRadial", trControl=ctrl, tuneGrid=tuneGrid)
+svm
+
+# Predição SVM para o Melhor Modelo
+predicoes.svm <- predict(svm, teste)
+confusionMatrix(predicoes.svm, teste$sonegador)
+
+
+######## KNN ##########
+tuneGrid = expand.grid(k=c(1,3,5,7,9))
+set.seed(47)
+knn <- train(sonegador~., data=treino, method="knn", tuneGrid=tuneGrid)
+knn
+
+# Predição KNN para o Melhor Modelo
+predicoes.knn <- predict(knn, teste)
+confusionMatrix(predicoes.knn, teste$sonegador)
+
+
+######## RandomForest ######
+set.seed(47)
+rf <- train(sonegador~., data=treino, method="rf")
+rf
+# Predict
+predicoes.rf <- predict(rf, teste)
+confusionMatrix(predicoes.rf, teste$sonegador)
+
+# Cross-validation
+ctrl <- trainControl(method = "cv", number = 10)
+set.seed(47)
+rf <- train(sonegador~., data=treino, method="rf", trControl=ctrl)
+rf
+
+# Predict
+predicoes.rf <- predict(rf, teste)
+confusionMatrix(predicoes.rf, teste$sonegador)
+
+# Melhor model
+tuneGrid = expand.grid(mtry=c(2, 5, 7, 9))
+set.seed(47)
+rf <- train(sonegador~., data = treino, method = "rf", trControl=ctrl, tuneGrid = tuneGrid)
+rf
+
+# Predict
+predicoes.rf <- predict(rf, teste)
+confusionMatrix(predicoes.rf, teste$sonegador)
