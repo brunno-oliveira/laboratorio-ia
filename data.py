@@ -80,7 +80,7 @@ class Biomassa(Data):
         )
 
 
-class Veiculos(Data):
+class Veiculo(Data):
     @staticmethod
     def get_data() -> pd.DataFrame:
         return pd.read_csv("data_source/Material 02 - 5 - C - Veiculos - Dados.csv")

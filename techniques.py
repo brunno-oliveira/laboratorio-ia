@@ -19,8 +19,11 @@ def hold_out(
     y_train: pd.DataFrame,
     y_test: pd.DataFrame,
     classifier,
+    init_params: dict,
     params: List[dict],
+    default_params: dict,
 ) -> Result:
+    classifier = classifier(**init_params)
     classifier.fit(x_train, y_train)
     predict = classifier.predict(x_test)
 
@@ -40,15 +43,18 @@ def cv(
     y_train: pd.DataFrame,
     y_test: pd.DataFrame,
     classifier,
+    init_params: dict,
     params: List[dict],
+    default_params: dict,
 ) -> Result:
-    classifier = GridSearchCV(classifier, {}, n_jobs=-1, cv=10)
+    classifier = classifier(**init_params)
+    classifier = GridSearchCV(classifier, default_params, scoring="accuracy", n_jobs=-1, cv=10)
     classifier.fit(x_train, y_train)
     predict = classifier.predict(x_test)
 
     for param in params:
         param.update(
-            {"value": classifier.get_params().get(f"estimator__{param['attr']}")}
+            {"value": classifier.best_params_.get(param['attr'])}
         )
 
     return Result(
@@ -64,8 +70,11 @@ def best_model(
     y_train: pd.DataFrame,
     y_test: pd.DataFrame,
     classifier,
+    init_params: dict,
     params: List[dict],
+    default_params: dict
 ) -> Result:
+    classifier = classifier(**init_params)
     cv_params = {p["attr"]: p["options"] for p in params}
     classifier = GridSearchCV(classifier, cv_params, n_jobs=-1, cv=10)
     classifier.fit(x_train, y_train)
