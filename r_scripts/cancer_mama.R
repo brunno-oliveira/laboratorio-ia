@@ -1,4 +1,6 @@
 library("caret")
+library(pROC)
+library(ROCR)
 set.seed(47)
 
 setwd('X://Git//laboratorio-ia//data_source')
@@ -25,6 +27,34 @@ rna_holdout
 
 predicoes.rna_holdout <- predict(rna_holdout, teste)
 confusionMatrix(predicoes.rna_holdout, teste$Class)
+
+# ROC
+set.seed(47)
+predict.proba.rna_holdout <- predict(rna_holdout, teste, type='prob')
+predict.proba.rna_holdout = predict.proba.rna_holdout$benign
+
+boolClass <- ifelse(teste$Class=="benign", 1, 0)
+
+# Buscando o melhor corte com base no RECALL para penalisar o FALSO NEGATIVO
+set.seed(47)
+prediction.proba.rna_holdout <- prediction(predict.proba.rna_holdout, boolClass)
+eval.proba.rna_holdout = performance(prediction.proba.rna_holdout, "rec")
+plot(eval.proba.rna_holdout)
+
+max <- which.max(slot(eval.proba.rna_holdout, "y.values")[[1]])
+rec <- slot(eval.proba.rna_holdout, "y.values")[[1]][max]
+cut <- slot(eval.proba.rna_holdout, "x.values")[[1]][max]
+abline(h=rec,v=cut,col="red")
+
+# ROC CURVE
+eval.proba.rna_holdout = performance(prediction.proba.rna_holdout, "tpr", "fpr")
+plot(eval.proba.rna_holdout, colorize=T)
+abline(a=0,b=1,)
+
+# AUC
+auc <- performance(prediction.proba.rna_holdout, "auc")
+auc <- round(unlist(slot(auc, "y.values")),4)
+auc
 
 # CROSS VALIDATION
 rna_ctrl <- trainControl(method = "cv", number = 10)
@@ -159,6 +189,7 @@ rf_best
 
 predict.rf_best <- predict(rf_best, teste) 
 confusionMatrix(predict.rf_best, as.factor(teste$Class))
+
 
 
 
