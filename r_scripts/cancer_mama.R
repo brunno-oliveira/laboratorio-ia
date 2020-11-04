@@ -19,7 +19,7 @@ teste <- df[-indices,]
 # -----------------------------------------------------------
 # RNA
 # -----------------------------------------------------------
-
+# -----------------------------------------------------------
 # HOLD OUT
 set.seed(47)
 rna_holdout <- train(Class~., data=treino, method="nnet",trace=FALSE)
@@ -56,7 +56,9 @@ auc <- performance(prediction.proba.rna_holdout, "auc")
 auc <- round(unlist(slot(auc, "y.values")),4)
 auc
 
+# -----------------------------------------------------------
 # CROSS VALIDATION
+set.seed(47)
 rna_ctrl <- trainControl(method = "cv", number = 10)
 rna_cv <- train(
   Class~., 
@@ -68,7 +70,37 @@ rna_cv
 predict.rna_cv <- predict(rna_cv, teste) 
 confusionMatrix(predict.rna_cv, as.factor(teste$Class))
 
+# ROC
+set.seed(47)
+predict.proba.rna_cv <- predict(rna_cv, teste, type='prob')
+predict.proba.rna_cv = predict.proba.rna_cv$benign
+
+boolClass <- ifelse(teste$Class=="benign", 1, 0)
+
+# Buscando o melhor corte com base no RECALL para penalisar o FALSO NEGATIVO
+set.seed(47)
+prediction.proba.rna_cv <- prediction(predict.proba.rna_cv, boolClass)
+eval.proba.rna_cv = performance(prediction.proba.rna_cv, "rec")
+plot(eval.proba.rna_cv)
+
+max <- which.max(slot(eval.proba.rna_cv, "y.values")[[1]])
+rec <- slot(eval.proba.rna_cv, "y.values")[[1]][max]
+cut <- slot(eval.proba.rna_cv, "x.values")[[1]][max]
+abline(h=rec,v=cut,col="red")
+
+# ROC CURVE
+eval.proba.rna_cv = performance(prediction.proba.rna_cv, "tpr", "fpr")
+plot(eval.proba.rna_cv, colorize=T)
+abline(a=0,b=1,)
+
+# AUC
+auc <- performance(prediction.proba.rna_cv, "auc")
+auc <- round(unlist(slot(auc, "y.values")),4)
+auc
+
+# -----------------------------------------------------------
 # BEST MODEL
+set.seed(47)
 rna_grid <- expand.grid(
   size = seq(from = 1, to = 50, by = 5),
   decay = seq(from = 0.1, to = 0.9, by = 0.31)
@@ -86,22 +118,123 @@ rna_best
 predict.rna_best <- predict(rna_best, teste) 
 confusionMatrix(predict.rna_best, as.factor(teste$Class))
 
+# ROC
+set.seed(47)
+predict.proba.rna_best <- predict(rna_best, teste, type='prob')
+predict.proba.rna_best = predict.proba.rna_best$benign
+
+boolClass <- ifelse(teste$Class=="benign", 1, 0)
+
+# Buscando o melhor corte com base no RECALL para penalisar o FALSO NEGATIVO
+set.seed(47)
+prediction.proba.rna_best <- prediction(predict.proba.rna_best, boolClass)
+eval.proba.rna_best = performance(prediction.proba.rna_best, "rec")
+plot(eval.proba.rna_best)
+
+max <- which.max(slot(eval.proba.rna_best, "y.values")[[1]])
+rec <- slot(eval.proba.rna_best, "y.values")[[1]][max]
+cut <- slot(eval.proba.rna_best, "x.values")[[1]][max]
+abline(h=rec,v=cut,col="red")
+
+# ROC CURVE
+eval.proba.rna_best = performance(prediction.proba.rna_best, "tpr", "fpr")
+plot(eval.proba.rna_best, colorize=T)
+abline(a=0,b=1,)
+
+# AUC
+auc <- performance(prediction.proba.rna_best, "auc")
+auc <- round(unlist(slot(auc, "y.values")),4)
+auc
+
+# -----------------------------------------------------------
+# KNN
+# -----------------------------------------------------------
+set.seed(47)
+knn_grid <- expand.grid(k = seq(from = 1, to = 20, by = 1))
+set.seed(47)
+knn <- train(
+  Class~ ., 
+  data=treino,
+  method="knn",
+  tuneGrid=knn_grid)
+knn
+
+predict.knn <- predict(knn, teste) 
+confusionMatrix(predict.knn, as.factor(teste$Class))
+
+# ROC
+set.seed(47)
+predict.proba.knn <- predict(knn, teste, type='prob')
+predict.proba.knn = predict.proba.knn$benign
+
+boolClass <- ifelse(teste$Class=="benign", 1, 0)
+
+# Buscando o melhor corte com base no RECALL para penalisar o FALSO NEGATIVO
+set.seed(47)
+prediction.proba.knn <- prediction(predict.proba.knn, boolClass)
+eval.proba.knn = performance(prediction.proba.knn, "rec")
+plot(eval.proba.knn)
+
+max <- which.max(slot(eval.proba.knn, "y.values")[[1]])
+rec <- slot(eval.proba.knn, "y.values")[[1]][max]
+cut <- slot(eval.proba.knn, "x.values")[[1]][max]
+abline(h=rec,v=cut,col="red")
+
+# ROC CURVE
+eval.proba.knn = performance(prediction.proba.knn, "tpr", "fpr")
+plot(eval.proba.knn, colorize=T)
+abline(a=0,b=1,)
+
+# AUC
+auc <- performance(prediction.proba.knn, "auc")
+auc <- round(unlist(slot(auc, "y.values")),4)
+auc
+
+
 # -----------------------------------------------------------
 # SVM
 # -----------------------------------------------------------
-
 # HOLD OUT
 set.seed(47)
 svm_holdout <- train(
   Class~., 
   data=treino, 
-  method="svmRadial",
-  trace=FALSE)
+  metric='rec',
+  method="svmRadial")
 svm_holdout
 
 predict.svm_holdout <- predict(svm_holdout, teste) 
-confusionMatrix(predict.svm_holdout, as.factor(teste$Class))
+confusionMatrix(predict.svm_holdout, teste$Class)
 
+# ROC
+set.seed(47)
+predict.proba.svm_holdout <- predict(svm_holdout, teste, type='prob')
+predict.proba.svm_holdout = predict.proba.svm_holdout$benign
+
+boolClass <- ifelse(teste$Class=="benign", 1, 0)
+
+# Buscando o melhor corte com base no RECALL para penalisar o FALSO NEGATIVO
+set.seed(47)
+prediction.proba.svm_holdout <- prediction(predict.proba.svm_holdout, boolClass)
+eval.proba.svm_holdout = performance(prediction.proba.svm_holdout, "rec")
+plot(eval.proba.svm_holdout)
+
+max <- which.max(slot(eval.proba.knn, "y.values")[[1]])
+rec <- slot(eval.proba.knn, "y.values")[[1]][max]
+cut <- slot(eval.proba.knn, "x.values")[[1]][max]
+abline(h=rec,v=cut,col="red")
+
+# ROC CURVE
+eval.proba.knn = performance(prediction.proba.knn, "tpr", "fpr")
+plot(eval.proba.knn, colorize=T)
+abline(a=0,b=1,)
+
+# AUC
+auc <- performance(prediction.proba.knn, "auc")
+auc <- round(unlist(slot(auc, "y.values")),4)
+auc
+
+# -----------------------------------------------------------
 # CROSS VALIDATION
 svm_ctrl <- trainControl(method = "cv", number = 10)
 set.seed(47)
@@ -116,6 +249,11 @@ svm_cv
 predict.svm_cv <- predict(svm_cv, teste) 
 confusionMatrix(predict.svm_cv, as.factor(teste$Class))
 
+# ROC
+predict.proba.svm_cv <- predict(svm_cv, teste, type='prob')
+predict.proba.svm_cv = predict.proba.svm_cv$benign
+
+# -----------------------------------------------------------
 # BEST MODEL
 svm_grid <- expand.grid(
   sigma = seq(from = 0.1, to = 0.9, by = 0.1)
@@ -133,21 +271,6 @@ svm_best
 
 predict.svm_best <- predict(svm_best, teste) 
 confusionMatrix(predict.svm_best, as.factor(teste$Class))
-
-# -----------------------------------------------------------
-# KNN
-# -----------------------------------------------------------
-knn_grid <- expand.grid(k = seq(from = 1, to = 20, by = 1))
-set.seed(47)
-knn <- train(
-  Class~ ., 
-  data=treino,
-  method="knn",
-  tuneGrid=knn_grid)
-knn
-
-predict.knn <- predict(knn, teste) 
-confusionMatrix(predict.knn, as.factor(teste$Class))
 
 # -----------------------------------------------------------
 # RF
