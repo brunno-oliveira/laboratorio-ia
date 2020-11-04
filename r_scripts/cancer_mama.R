@@ -56,7 +56,7 @@ auc <- performance(prediction.proba.rna_holdout, "auc")
 auc <- round(unlist(slot(auc, "y.values")),4)
 auc
 
-# -----------------------------------------------------------
+# -------------
 # CROSS VALIDATION
 set.seed(47)
 rna_ctrl <- trainControl(method = "cv", number = 10)
@@ -98,7 +98,7 @@ auc <- performance(prediction.proba.rna_cv, "auc")
 auc <- round(unlist(slot(auc, "y.values")),4)
 auc
 
-# -----------------------------------------------------------
+# -------------
 # BEST MODEL
 set.seed(47)
 rna_grid <- expand.grid(
@@ -234,7 +234,7 @@ auc <- performance(prediction.proba.knn, "auc")
 auc <- round(unlist(slot(auc, "y.values")),4)
 auc
 
-# -----------------------------------------------------------
+# -------------
 # CROSS VALIDATION
 svm_ctrl <- trainControl(method = "cv", number = 10)
 set.seed(47)
@@ -253,7 +253,7 @@ confusionMatrix(predict.svm_cv, as.factor(teste$Class))
 predict.proba.svm_cv <- predict(svm_cv, teste, type='prob')
 predict.proba.svm_cv = predict.proba.svm_cv$benign
 
-# -----------------------------------------------------------
+# -------------
 # BEST MODEL
 svm_grid <- expand.grid(
   sigma = seq(from = 0.1, to = 0.9, by = 0.1)
@@ -286,6 +286,7 @@ rf_holdout
 predict.rf_holdout <- predict(rf_holdout, teste) 
 confusionMatrix(predict.rf_holdout, as.factor(teste$Class))
 
+# -------------
 # CROSS VALIDATION
 rf_ctrl <- trainControl(method = "cv", number = 10)
 set.seed(47)
@@ -299,6 +300,7 @@ rf_cv
 predict.rf_cv <- predict(rf_cv, teste) 
 confusionMatrix(predict.rf_cv, as.factor(teste$Class))
 
+# -------------
 # BEST MODEL
 set.seed(47)
 rf_grid = expand.grid(mtry=seq(from = 1, to = 10, by = 1))
