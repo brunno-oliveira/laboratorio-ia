@@ -195,12 +195,15 @@ auc
 # SVM
 # -----------------------------------------------------------
 # HOLD OUT
+treino$Class = as.factor(treino$Class)
+
 set.seed(47)
 svm_holdout <- train(
   Class~., 
   data=treino, 
   metric='rec',
-  method="svmRadial")
+  method="svmRadial",
+  classProbs = TRUE)
 svm_holdout
 
 predict.svm_holdout <- predict(svm_holdout, teste) 
@@ -286,6 +289,34 @@ rf_holdout
 predict.rf_holdout <- predict(rf_holdout, teste) 
 confusionMatrix(predict.rf_holdout, as.factor(teste$Class))
 
+# ROC
+set.seed(47)
+predict.proba.rf_holdout <- predict(rf_holdout, teste, type='prob')
+predict.proba.rf_holdout = predict.proba.rf_holdout$benign
+
+boolClass <- ifelse(teste$Class=="benign", 1, 0)
+
+# Buscando o melhor corte com base no RECALL para penalisar o FALSO NEGATIVO
+set.seed(47)
+predict.proba.rf_holdout <- prediction(predict.proba.rf_holdout, boolClass)
+eval.proba.rf_holdout = performance(predict.proba.rf_holdout, "rec")
+plot(eval.proba.rf_holdout)
+
+max <- which.max(slot(eval.proba.rf_holdout, "y.values")[[1]])
+rec <- slot(eval.proba.rf_holdout, "y.values")[[1]][max]
+cut <- slot(eval.proba.rf_holdout, "x.values")[[1]][max]
+abline(h=rec,v=cut,col="red")
+
+# ROC CURVE
+eval.proba.rf_holdout = performance(predict.proba.rf_holdout, "tpr", "fpr")
+plot(eval.proba.rf_holdout, colorize=T)
+abline(a=0,b=1,)
+
+# AUC
+auc <- performance(predict.proba.rf_holdout, "auc")
+auc <- round(unlist(slot(auc, "y.values")),4)
+auc
+
 # -------------
 # CROSS VALIDATION
 rf_ctrl <- trainControl(method = "cv", number = 10)
@@ -299,6 +330,34 @@ rf_cv
 
 predict.rf_cv <- predict(rf_cv, teste) 
 confusionMatrix(predict.rf_cv, as.factor(teste$Class))
+
+# ROC
+set.seed(47)
+predict.proba.rf_cv <- predict(rf_cv, teste, type='prob')
+predict.proba.rf_cv = predict.proba.rf_cv$benign
+
+boolClass <- ifelse(teste$Class=="benign", 1, 0)
+
+# Buscando o melhor corte com base no RECALL para penalisar o FALSO NEGATIVO
+set.seed(47)
+predict.proba.rf_cv <- prediction(predict.proba.rf_cv, boolClass)
+eval.proba.rf_cv = performance(predict.proba.rf_cv, "rec")
+plot(eval.proba.rf_cv)
+
+max <- which.max(slot(eval.proba.rf_cv, "y.values")[[1]])
+rec <- slot(eval.proba.rf_cv, "y.values")[[1]][max]
+cut <- slot(eval.proba.rf_cv, "x.values")[[1]][max]
+abline(h=rec,v=cut,col="red")
+
+# ROC CURVE
+eval.proba.rf_cv = performance(predict.proba.rf_cv, "tpr", "fpr")
+plot(eval.proba.rf_cv, colorize=T)
+abline(a=0,b=1,)
+
+# AUC
+auc <- performance(predict.proba.rf_cv, "auc")
+auc <- round(unlist(slot(auc, "y.values")),4)
+auc
 
 # -------------
 # BEST MODEL
@@ -315,7 +374,33 @@ rf_best
 predict.rf_best <- predict(rf_best, teste) 
 confusionMatrix(predict.rf_best, as.factor(teste$Class))
 
+# ROC
+set.seed(47)
+predict.proba.rf_best <- predict(rf_best, teste, type='prob')
+predict.proba.rf_best = predict.proba.rf_best$benign
 
+boolClass <- ifelse(teste$Class=="benign", 1, 0)
+
+# Buscando o melhor corte com base no RECALL para penalisar o FALSO NEGATIVO
+set.seed(47)
+predict.proba.rf_best <- prediction(predict.proba.rf_best, boolClass)
+eval.proba.rf_best = performance(predict.proba.rf_best, "rec")
+plot(eval.proba.rf_best)
+
+max <- which.max(slot(eval.proba.rf_best, "y.values")[[1]])
+rec <- slot(eval.proba.rf_best, "y.values")[[1]][max]
+cut <- slot(eval.proba.rf_best, "x.values")[[1]][max]
+abline(h=rec,v=cut,col="red")
+
+# ROC CURVE
+eval.proba.rf_best = performance(predict.proba.rf_best, "tpr", "fpr")
+plot(eval.proba.rf_best, colorize=T)
+abline(a=0,b=1,)
+
+# AUC
+auc <- performance(predict.proba.rf_cv, "auc")
+auc <- round(unlist(slot(auc, "y.values")),4)
+auc
 
 
 
