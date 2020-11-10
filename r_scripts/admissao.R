@@ -1,4 +1,5 @@
 library("caret")
+library(ggplot2)
 
 setwd('X://Git//laboratorio-ia//data_source')
 
@@ -223,6 +224,7 @@ sqrt(1 - (rf_cv.r)^2)
 # -------------
 # BEST MODEL
 set.seed(47)
+rf_ctrl <- trainControl(method = "cv", number = 10)
 rf_grid = expand.grid(mtry=seq(from = 1, to = 50, by = 1))
 rf_best <- train(
   ChanceOfAdmit~., 
@@ -242,6 +244,16 @@ cor(predict.rf_best, teste$ChanceOfAdmit, method = "pearson")
 rf_best.r <- cor(predict.rf_best, teste$ChanceOfAdmit, use = "complete.obs")
 sqrt(1 - (rf_best.r)^2)
 
+# Grafico de residuos
+plot(
+  teste$ChanceOfAdmit, 
+  teste$ChanceOfAdmit - predict.rf_best, 
+  ylab="Residuos", 
+  xlab="Change de se admitido", 
+  main="RF Best Model Residuos") 
+abline(0, 0)  
 
-
+# Predict New Data
+df.new <- read.csv('Material 02 - 8 - R - Admissao - Novos Casos.csv')
+df.new$predict <- predict(rf_best, df.new)
 

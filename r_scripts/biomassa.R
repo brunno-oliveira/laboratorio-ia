@@ -1,4 +1,5 @@
 library("caret")
+library(ggplot2)
 
 setwd('X://Git//laboratorio-ia//data_source')
 
@@ -32,6 +33,21 @@ cor(predicoes.rna_holdout, teste$biomassa, method = "pearson")
 # SYX http://courses.washington.edu/psy315/tutorials/interpretation_of_regression_tutorial.pdf
 rna_holdout.r <- cor(predicoes.rna_holdout, teste$biomassa,use = "complete.obs")
 sqrt(1 - (rna_holdout.r)^2)
+
+# Grafico de residuos
+plot(
+  teste$biomassa, 
+  teste$biomassa - predicoes.rna_holdout, 
+  ylab="Residuos", 
+  xlab="Biomassa", 
+  main="RNA Holdout Residuos") 
+abline(0, 0)  
+
+# Predict New Data
+df.new <- read.csv('Material 02 - 4 - R - Biomassa - Dados - Novos Casos.csv')
+df.new$biomassa <- NULL
+df.new$predict <- predict(rna_holdout, df.new)
+
 
 # -------------
 # CROSS VALIDATION

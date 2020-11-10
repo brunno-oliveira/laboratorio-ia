@@ -1,5 +1,6 @@
 library("caret")
 library("ggpubr")
+library(ggplot2)
 
 setwd('X://Git//laboratorio-ia//data_source')
 
@@ -125,22 +126,22 @@ sqrt(1 - (r)^2)
 # CROSS VALIDATION
 set.seed(47)
 svm_ctrl <- trainControl(method = "cv", number = 10)
-rna_cv <- train(
+svm_cv <- train(
   Volume~., 
   data=treino, 
   method="svmRadial",
   linout=T,
   trace=FALSE, 
   trControl=svm_ctrl)
-rna_cv
+svm_cv
 
-predict.rna_cv <- predict(rna_cv, teste) 
+predict.svm_cv <- predict(svm_cv, teste) 
 
-postResample(pred=predict.rna_cv, obs=teste$Volume)
-cor(predict.rna_cv, teste$Volume, method = "pearson")
+postResample(pred=predict.svm_cv, obs=teste$Volume)
+cor(predict.svm_cv, teste$Volume, method = "pearson")
 
 # SYX http://courses.washington.edu/psy315/tutorials/interpretation_of_regression_tutorial.pdf
-r <- cor(predict.rna_cv, teste$Volume, use = "complete.obs")
+r <- cor(predict.svm_cv, teste$Volume, use = "complete.obs")
 sqrt(1 - (r)^2)
 
 # -------------
@@ -168,6 +169,20 @@ cor(predict.svm_best, teste$Volume, method = "pearson")
 # SYX http://courses.washington.edu/psy315/tutorials/interpretation_of_regression_tutorial.pdf
 r <- cor(predict.svm_best, teste$Volume, use = "complete.obs")
 sqrt(1 - (r)^2)
+
+# Grafico de residuos
+plot(
+  teste$Volume, 
+  teste$Volume-predict.svm_best, 
+  ylab="Residuos", 
+  xlab="Volume", 
+  main="SVM Best Model Residuos") 
+abline(0, 0)  
+
+# Predict New Data
+df.new <- read.csv('Material 02 - 3 - Estimativa de Volume - Dados - Novos Casos.csv')
+df.new$Volume <- NULL
+df.new$predict <- predict(svm_best, df.new)
 
 # -----------------------------------------------------------
 # RF
