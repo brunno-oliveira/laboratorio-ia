@@ -190,6 +190,13 @@ auc <- performance(prediction.proba.knn, "auc")
 auc <- round(unlist(slot(auc, "y.values")),4)
 auc
 
+# Predict New Data
+df.new <- read.csv('Material 02 - 2 - Cancer de Mama - Dados - Novos Casos.csv')
+# Removendo o ID do dataset
+df.new = df.new[,2:11]
+df.new$Class <- NULL
+df.new$predict <- predict(knn, df.new)
+
 
 # -----------------------------------------------------------
 # SVM
